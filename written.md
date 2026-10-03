@@ -60,7 +60,7 @@
 4. 依次执行以下代码，输出是什么？
 
    ```python
-   s = "  hello  "
+   s = " hello "
    print(len(s))
    print(len(s.strip()))
    ```
