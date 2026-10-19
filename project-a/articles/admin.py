@@ -20,7 +20,7 @@ class ArticleAdmin(admin.ModelAdmin):
         form: forms.ModelForm,
         change: bool,
     ) -> None:
-        """后台保存也传递真实操作人，且不覆盖浏览量。"""
+        # 记录操作人，避免覆盖浏览量。
         obj._audit_actor_id = request.user.pk
         if change:
             obj.save(update_fields=["title", "content", "status", "updated_at"])

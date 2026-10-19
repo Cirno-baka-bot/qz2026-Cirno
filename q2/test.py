@@ -14,9 +14,9 @@ class UserManagerTests(unittest.TestCase):
         self.manager = UserManager()
 
     def test_add_get_update_remove_and_list(self) -> None:
-        first = self.manager.add_user("张三", 18)
-        second = self.manager.add_user("李四", 20)
-        self.assertEqual(first, {"id": 1, "name": "张三", "age": 18})
+        first = self.manager.add_user("baka", 18)
+        second = self.manager.add_user("baka9", 20)
+        self.assertEqual(first, {"id": 1, "name": "baka", "age": 18})
         self.assertEqual(second["id"], 2)
         self.assertEqual(self.manager.get_user(1), first)
         self.assertIsNone(self.manager.get_user(99))
@@ -28,7 +28,7 @@ class UserManagerTests(unittest.TestCase):
         self.assertEqual(
             self.manager.list_users(),
             [
-                {"id": 1, "name": "张三", "age": 19},
+                {"id": 1, "name": "baka", "age": 19},
             ],
         )
 
@@ -39,26 +39,28 @@ class UserManagerTests(unittest.TestCase):
         self.assertEqual(self.manager.add_user("三", 3)["id"], 3)
 
     def test_list_users_returns_a_list_copy(self) -> None:
-        self.manager.add_user("张三", 18)
+        self.manager.add_user("baka", 18)
         listed = self.manager.list_users()
         listed.clear()
         self.assertEqual(len(self.manager.list_users()), 1)
 
     def test_save_uses_utf8_and_preserves_chinese(self) -> None:
-        self.manager.add_user("张三", 18)
+        self.manager.add_user("baka", 18)
+        self.manager.add_user("中文用户", 20)
         self.manager.save_to_json(str(self.path))
         text = self.path.read_text(encoding="utf-8")
-        self.assertIn("张三", text)
-        self.assertNotIn("\\u5f20", text)
-        self.assertEqual(json.loads(text)[0]["name"], "张三")
+        self.assertIn("baka", text)
+        self.assertIn("中文用户", text)
+        self.assertNotIn("\\u4e2d", text)
+        self.assertEqual(json.loads(text)[0]["name"], "baka")
 
     def test_load_overwrites_current_users_and_continues_max_id(self) -> None:
         self.manager.add_user("旧用户", 99)
         self.path.write_text(
             json.dumps(
                 [
-                    {"id": 2, "name": "张三", "age": 18},
-                    {"id": 7, "name": "李四", "age": 20},
+                    {"id": 2, "name": "baka", "age": 18},
+                    {"id": 7, "name": "baka9", "age": 20},
                 ],
                 ensure_ascii=False,
             ),
@@ -68,11 +70,11 @@ class UserManagerTests(unittest.TestCase):
         self.assertEqual(
             self.manager.list_users(),
             [
-                {"id": 2, "name": "张三", "age": 18},
-                {"id": 7, "name": "李四", "age": 20},
+                {"id": 2, "name": "baka", "age": 18},
+                {"id": 7, "name": "baka9", "age": 20},
             ],
         )
-        self.assertEqual(self.manager.add_user("王五", 21)["id"], 8)
+        self.assertEqual(self.manager.add_user("fumo", 21)["id"], 8)
 
     def test_load_empty_list_resets_next_id(self) -> None:
         self.manager.add_user("旧用户", 99)
@@ -81,8 +83,8 @@ class UserManagerTests(unittest.TestCase):
         self.assertEqual(self.manager.add_user("新用户", 18)["id"], 1)
 
     def test_save_then_load_round_trip(self) -> None:
-        self.manager.add_user("张三", 19)
-        self.manager.add_user("李四", 20)
+        self.manager.add_user("baka", 19)
+        self.manager.add_user("baka9", 20)
         self.manager.save_to_json(str(self.path))
         restored = UserManager()
         restored.load_from_json(str(self.path))

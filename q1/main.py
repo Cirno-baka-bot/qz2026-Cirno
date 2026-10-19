@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 def analyze_log(filepath: str) -> dict:
-    """逐行统计 JSON 日志，文件缺失返回空结果，坏行跳过。"""
+    # 统计日志，跳过坏行；文件缺失时返回空统计。
     total: int = 0
     by_level: dict[str, int] = {}
     by_user: dict[str, int] = {}

@@ -40,10 +40,10 @@ class AnalyzeLogTests(unittest.TestCase):
     def test_normal_logs_count_and_keep_last_error(self) -> None:
         self.write_lines(
             [
-                self.log_line("INFO", "登录", "张三"),
-                self.log_line("ERROR", "连接失败", "李四"),
-                self.log_line("ERROR", "请求超时", "张三"),
-                self.log_line("INFO", "完成", "王五"),
+                self.log_line("INFO", "登录", "baka"),
+                self.log_line("ERROR", "连接失败", "baka9"),
+                self.log_line("ERROR", "请求超时", "baka"),
+                self.log_line("INFO", "完成", "fumo"),
             ]
         )
         self.assertEqual(
@@ -51,7 +51,7 @@ class AnalyzeLogTests(unittest.TestCase):
             {
                 "total": 4,
                 "by_level": {"INFO": 2, "ERROR": 2},
-                "by_user": {"张三": 2, "李四": 1, "王五": 1},
+                "by_user": {"baka": 2, "baka9": 1, "fumo": 1},
                 "last_error": "请求超时",
             },
         )
@@ -67,10 +67,10 @@ class AnalyzeLogTests(unittest.TestCase):
         self.write_lines(
             [
                 "这不是 JSON",
-                self.log_line("INFO", "正常", "张三"),
+                self.log_line("INFO", "正常", "baka"),
                 "",
                 "{",
-                self.log_line("ERROR", "后面的错误", "李四"),
+                self.log_line("ERROR", "后面的错误", "baka9"),
             ]
         )
         self.assertEqual(
@@ -78,7 +78,7 @@ class AnalyzeLogTests(unittest.TestCase):
             {
                 "total": 2,
                 "by_level": {"INFO": 1, "ERROR": 1},
-                "by_user": {"张三": 1, "李四": 1},
+                "by_user": {"baka": 1, "baka9": 1},
                 "last_error": "后面的错误",
             },
         )
@@ -88,11 +88,11 @@ class AnalyzeLogTests(unittest.TestCase):
         self.assert_empty_result()
 
     def test_no_error_keeps_last_error_none(self) -> None:
-        self.write_lines([self.log_line("INFO", "完成", "张三")])
+        self.write_lines([self.log_line("INFO", "完成", "baka")])
         self.assertIsNone(analyze_log(str(self.path))["last_error"])
 
     def test_calls_do_not_share_previous_counts(self) -> None:
-        self.write_lines([self.log_line("INFO", "完成", "张三")])
+        self.write_lines([self.log_line("INFO", "完成", "baka")])
         first = analyze_log(str(self.path))
         first["by_level"]["INFO"] = 99
         self.assertEqual(analyze_log(str(self.path))["by_level"], {"INFO": 1})

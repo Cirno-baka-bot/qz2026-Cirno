@@ -33,8 +33,6 @@ def article_list(request: HttpRequest) -> HttpResponse:
 @require_safe
 def article_detail(request: HttpRequest, pk: int) -> HttpResponse:
     if request.method == "GET":
-        # Python 读旧值再 views += 1 会使两个请求写入同一个新值，丢失一次更新。
-        # F 表达式交给数据库执行 views = views + 1；不触发内容保存/审计信号。
         updated = Article.objects.filter(pk=pk).update(views=F("views") + 1)
         if not updated:
             raise Http404("文章不存在")
@@ -79,7 +77,6 @@ def article_edit(request: HttpRequest, pk: int) -> HttpResponse:
     if request.method == "POST" and form.is_valid():
         article = form.save(commit=False)
         article._audit_actor_id = request.user.pk
-        # 不写回旧实例里的 views，以免覆盖另一个访问请求刚增加的浏览量。
         article.save(update_fields=["title", "content", "status", "updated_at"])
         messages.success(request, "文章已保存。")
         return redirect("articles:detail", pk=article.pk)

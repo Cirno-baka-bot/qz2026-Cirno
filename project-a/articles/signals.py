@@ -16,7 +16,7 @@ def collect_article_changes(
     update_fields: frozenset[str] | None,
     **kwargs: object,
 ) -> None:
-    """读取保存前的业务字段，只比较本次真正写入的字段。"""
+    # 比较本次保存的字段。
     instance._audit_changes = {}
     if raw:
         return
@@ -41,7 +41,7 @@ def record_article_saved(
     using: str,
     **kwargs: object,
 ) -> None:
-    """根据业务变化写审计；浏览量和无变化保存不产生修改日志。"""
+    # 记录内容和状态变化。
     if raw:
         return
     changes = instance._audit_changes
@@ -70,7 +70,7 @@ def record_article_deleted(
     using: str,
     **kwargs: object,
 ) -> None:
-    """保留删除快照，删除日志不引用即将消失的文章。"""
+    # 保留删除快照。
     AuditLog.objects.using(using).create(
         article=None,
         operator_id=instance._audit_actor_id,
@@ -91,7 +91,7 @@ def remove_attachment_file(
     using: str,
     **kwargs: object,
 ) -> None:
-    """仅在数据库提交后删除文件，避免回滚后记录指向已删文件。"""
+    # 事务提交后删除附件文件。
     if instance.file.name:
         transaction.on_commit(
             partial(instance.file.storage.delete, instance.file.name),
