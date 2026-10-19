@@ -1,0 +1,7 @@
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+extend-exclude = [".tmp", ".venv", "articles/migrations", "config/asgi.py", "config/wsgi.py"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

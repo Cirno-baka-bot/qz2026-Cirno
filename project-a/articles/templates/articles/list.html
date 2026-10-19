@@ -1,0 +1,15 @@
+{% extends 'articles/base.html' %}
+{% block content %}
+<div class="heading"><h1>文章列表</h1><a class="button" href="{% url 'articles:create' %}">新建文章</a></div>
+<p class="muted">按创建时间倒序排列。登录用户可阅读文章，作者可编辑和管理附件。</p>
+<div class="article-list">
+{% for article in articles %}
+  <article class="article-row">
+    <h2><a href="{% url 'articles:detail' article.pk %}">{{ article.title }}</a></h2>
+    <p class="meta">{{ article.author }} · {{ article.get_status_display }} · {{ article.views }} 次浏览 · {{ article.created_at|date:'Y-m-d H:i' }}</p>
+  </article>
+{% empty %}
+  <p class="empty">还没有文章。点击“新建文章”开始。</p>
+{% endfor %}
+</div>
+{% endblock %}

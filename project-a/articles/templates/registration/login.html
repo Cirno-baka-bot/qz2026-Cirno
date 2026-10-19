@@ -1,0 +1,14 @@
+{% extends 'articles/base.html' %}
+{% block title %}登录 · 文章管理{% endblock %}
+{% block content %}
+<section class="login-panel">
+  <h1>登录</h1>
+  <p class="muted">登录后管理文章、上传附件和查看操作记录。</p>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+    <button type="submit">登录</button>
+  </form>
+</section>
+{% endblock %}

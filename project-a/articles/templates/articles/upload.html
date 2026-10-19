@@ -1,0 +1,9 @@
+{% extends 'articles/base.html' %}
+{% block content %}
+<h1>上传附件</h1>
+<p>文章：{{ article.title }}</p>
+<form method="post" enctype="multipart/form-data" action="{% url 'articles:upload' article.pk %}">
+  {% csrf_token %}{{ form.as_p }}
+  <div class="actions"><button type="submit">重新上传</button><a href="{% url 'articles:detail' article.pk %}">返回文章</a></div>
+</form>
+{% endblock %}

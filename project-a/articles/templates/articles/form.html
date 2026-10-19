@@ -1,0 +1,13 @@
+{% extends 'articles/base.html' %}
+{% block title %}{{ heading }} · 文章管理{% endblock %}
+{% block content %}
+<h1>{{ heading }}</h1>
+<form method="post" class="editor">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <div class="actions">
+    <button type="submit">保存文章</button>
+    {% if article %}<a href="{% url 'articles:detail' article.pk %}">取消</a>{% else %}<a href="{% url 'articles:list' %}">取消</a>{% endif %}
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'articles/base.html' %}
+{% block title %}{{ article.title }} · 文章管理{% endblock %}
+{% block content %}
+<article>
+  <div class="heading">
+    <h1>{{ article.title }}</h1>
+    {% if user.pk == article.author_id %}<div class="actions"><a href="{% url 'articles:edit' article.pk %}">编辑文章</a><a class="danger-text" href="{% url 'articles:delete' article.pk %}">删除文章</a></div>{% endif %}
+  </div>
+  <p class="meta">作者：{{ article.author }} · {{ article.get_status_display }} · 浏览量：{{ article.views }}</p>
+  <p class="meta">创建：{{ article.created_at|date:'Y-m-d H:i' }} · 更新：{{ article.updated_at|date:'Y-m-d H:i' }}</p>
+  <div class="article-content">{{ article.content|linebreaks }}</div>
+</article>
+<section>
+  <h2>附件</h2>
+  <ul class="attachments">
+  {% for attachment in attachments %}
+    <li>
+      <a href="{% url 'articles:download' attachment.pk %}">{{ attachment.filename }}</a>
+      <span class="meta">{{ attachment.uploaded_at|date:'Y-m-d H:i' }}</span>
+      {% if user.pk == article.author_id %}<form method="post" action="{% url 'articles:attachment-delete' attachment.pk %}">{% csrf_token %}<button class="secondary" type="submit">删除附件</button></form>{% endif %}
+    </li>
+  {% empty %}<li class="muted">暂无附件。</li>{% endfor %}
+  </ul>
+  {% if user.pk == article.author_id %}
+  <form method="post" enctype="multipart/form-data" action="{% url 'articles:upload' article.pk %}" class="upload-form">
+    {% csrf_token %}
+    <p><label for="attachment-filename">文件名</label><input id="attachment-filename" name="filename" maxlength="255" required></p>
+    <p><label for="attachment-file">选择文件</label><input id="attachment-file" type="file" name="file" required></p>
+    <button type="submit">上传附件</button>
+  </form>
+  {% endif %}
+</section>
+<section>
+  <h2>操作记录</h2>
+  <p class="muted">最近的操作排在前面。</p>
+  {% for log in audit_logs %}
+  <article class="audit-entry">
+    <h3>{{ log.get_action_display }} <span class="meta">{{ log.created_at|date:'Y-m-d H:i:s' }} · {{ log.operator|default:'未知操作人' }}</span></h3>
+    <dl>
+      {% for field, change in log.changes.items %}
+      <div><dt>{{ field }}</dt><dd><span class="muted">原值：</span>{{ change.old|default_if_none:'（无）' }}<br><span class="muted">新值：</span>{{ change.new|default_if_none:'（无）' }}</dd></div>
+      {% endfor %}
+    </dl>
+  </article>
+  {% empty %}<p class="muted">暂无操作记录，接通信号前的历史文章不会自动补记。</p>{% endfor %}
+</section>
+{% endblock %}

@@ -163,7 +163,7 @@
 
 ### 答案
 
-（在此填写，格式：`1. A  2. B  3. C  4. D  5. A  6. B  7. C  8. D  9. A  10. B`）
+1. B  2. B  3. B  4. B  5. B  6. B  7. B  8. B  9. B  10. B
 
 ---
 
@@ -182,7 +182,18 @@ import copy
 c = copy.deepcopy(a)
 ```
 
-（在此作答）
+`b = a.copy()` 是浅拷贝，只复制最外层列表，内部的子列表仍然共享。
+`c = copy.deepcopy(a)` 是深拷贝，外层列表和内部子列表都会被复制。
+
+执行 `a[0].append(99)` 后：
+
+```python
+a == [[1, 2, 99], [3, 4]]
+b == [[1, 2, 99], [3, 4]]
+c == [[1, 2], [3, 4]]
+```
+
+因为 `a` 和 `b` 共享内部的第一个子列表，所以修改 `a[0]` 时 `b[0]` 也会变化。`c` 是深拷贝，内部对象与 `a` 独立，因此不会变化。
 
 ### 第 2 题：字典与列表的综合应用
 
@@ -202,7 +213,41 @@ logs = [
 2. 写出表达式，统计每个用户出现了几次（返回字典，键为用户名，值为次数）。
 3. 解释为什么第 2 问不能直接用 `len(logs)` 得到结果，需要什么遍历结构？
 
-（在此作答）
+1. 找出所有错误日志：
+
+```python
+error_logs = [
+    log for log in logs
+    if log["level"] == "ERROR"
+]
+```
+
+结果为：
+
+```python
+[
+    {"user": "张三", "action": "error", "level": "ERROR"},
+    {"user": "李四", "action": "error", "level": "ERROR"},
+]
+```
+
+2. 统计用户出现次数：
+
+```python
+user_counts = {}
+
+for log in logs:
+    user = log["user"]
+    user_counts[user] = user_counts.get(user, 0) + 1
+```
+
+结果为：
+
+```python
+{"张三": 2, "李四": 2, "王五": 1}
+```
+
+3. `len(logs)` 只能得到日志总条数，不能区分每条日志属于哪个用户。因此需要遍历 `logs`，读取每条日志中的 `"user"` 字段，再使用字典记录每个用户出现的次数。
 
 ### 第 3 题：异常处理设计
 
@@ -217,4 +262,22 @@ Day_10 中你写过 `safe_int(s)` 函数：能转就返回整数，不能转就�
 
 请写出函数代码，并说明：为什么这里用 `try/except` 比先用 `if` 判断再计算更好？
 
-（在此作答）
+```python
+def safe_divide(a: str, b: str) -> float | None:
+    try:
+        numerator = float(a)
+        denominator = float(b)
+        return numerator / denominator
+    except (ValueError, ZeroDivisionError):
+        return None
+```
+
+例如：
+
+```python
+safe_divide("10", "2")   # 5.0
+safe_divide("abc", "2")  # None
+safe_divide("10", "0")   # None
+```
+
+这里使用 `try/except`，是因为字符串转换和除法本身都可能失败。转换失败会产生 `ValueError`，除数为零会产生 `ZeroDivisionError`。将可能出错的操作放在 `try` 中，可以集中处理这些异常
